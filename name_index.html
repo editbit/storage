@@ -10,6 +10,8 @@
 
 <body>
 
+<!-- ***************************************************** -->
+
 Status: <span id="status"></span><br /><br />
 
 Messages: <ul id="messages"></ul>
@@ -23,6 +25,23 @@ Messages: <ul id="messages"></ul>
 <div id="byte_range"></div>
 
 <div id="byte_content"></div>
+
+
+<table width="50%" border="1">
+  <tr>
+    <th>file name</th>
+    <th>stored file name</th>
+  </tr>
+
+  <% fileList.forEach(function(item, index){ %>
+    <tr>
+      <td><a><%= item.name %></a></td>
+      <td><a><%= item.stored_name %></a></td>
+    </tr>
+  <% }); %>
+</table>
+
+<!-- ***************************************************** -->
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
@@ -38,7 +57,7 @@ var ws_upload = null;
 
 if ('WebSocket' in window) {
 
-  var ws = new WebSocket('ws://1.214.228.9:8000', 'example-echo');
+  var ws = new WebSocket('ws://1.214.224.38:8000', 'example-echo');
 
   ws.binaryType="arraybuffer";
 
@@ -245,6 +264,8 @@ var msg = {
     type: "file_data",
 
     name: escape(files[0].name),
+
+    size: files[0].size,
 
     stat: 'upload',
 

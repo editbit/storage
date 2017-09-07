@@ -1,10 +1,17 @@
 var WebSocketServer = require('websocket').server;
+var net = require('net');
 var express = require('express');
 var app = express();
 var fs = require('fs');
 var http = require('http');
 var writer = null;
+var dataserver_id = null;
 process.setMaxListeners(0);
+
+var ip = '127.0.0.1';
+var port = 3000;
+
+var socket = new net.Socket();
 
 var server_down = http.createServer(app).listen(3304, function(){console.log('Server Running . ')});
 
@@ -15,6 +22,21 @@ var server = http.createServer(function (req, res) {
 });
 
 server.listen(8001, function () {
+  fs.exists('dataserver_id.txt', function(exists){
+    if(exists){
+      fs.readFile('dataserver_id.txt', 'utf8', function(err, data){
+        console.log('data: '+data);
+        dataserver_id = data;
+
+        //socket.connect({},function(){
+
+        //});
+      });
+    } else {
+      console.log('dataserver_id is not exist');
+    }
+  });
+
   console.log('Server is listening on port 8000');
 });
 
