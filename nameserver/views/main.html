@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
+<!-- Bootstrap -->
+<style type="text/css">
+body {
+    font-size: 0.8em;
+    color:#666;
+    padding-top:30px;
+}
+h2 {
+    font-size:35px;
+    margin-bottom: 30px;
+}
+	a:link { color: black; text-decoration: none;}
+</style>
+
+
+</head>
+<body id="body">
+<div class="container">
+
+<h3>Storage</h3>
+<div class="row">
+	<div class="col-xs-6 col-md-6">
+    <a id="serverModalBtn" class="btn">server size</a>
+
+                            <div class="modal fade" id="serverModal" tabindex="-1" role="dialog" aria-labelledby="serverModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="serverModalLabel">Data Server Info</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div> 
+                                  <div class="modal-body">
+
+
+			<table class="table" style="cursor:pointer;">
+				<tr class="bg-info"><th>Data Server ID</th><th>size</th><th>alive</th></tr>
+
+                                <% dataserver.forEach(function(item, index){ %>
+            
+				<tr>
+				  <td><%= item.id %></td> 
+				  <td><%= (item.size/1000000).toFixed(3) %>GB</td> 
+				  <td><%= (item.is_alive)?'up':'down' %></td> 
+				</tr>
+                                <% }); %>
+                        </table>                    
+
+
+                                  </div> 
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div> 
+                              </div>
+                            
+                            </div>
+
+</div>
+<div class="col-xs-3 col-md-3">
+</div>
+<div class="col-xs-2 col-md-2">
+	<div class ="dropdown">
+		<button class="btn btn-default dropdown-toggle btn-outline-primary" type="button" id="dropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom: 1px; margin-left: 5px; padding-top:2px; padding-bottom: 5px;"><%= username %></button>
+			<div class="dropdown-menu" aria-labelledby="dropdownButton">
+				<a class="dropdown-item" href="/auth/logout">logout</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<p>
+	   <article class="col-xs-9 col-md-9">  
+		<div id="drop_zone">
+			<table class="table" onclick="location.href='#'" style="cursor:pointer;">
+				<tr class="bg-info" role="alert"><th>Name</th><th>Size</th><th>Data Server ID</th></tr>
+
+			    <% fileList.forEach(function(item, index){ %>
+				<tr id="testModal<%=index%>">
+				  <td><%= item.name %></td>  <!-- -->
+				  <td><%= (item.size/1000000).toFixed(3) %>MB</td> <!-- -->
+				  <td><%= item.server_id %></td> <!-- -->
+				</tr>
+
+                            <div class="modal fade" id="fileModal<%=index%>" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="fileModalLabel"><%=item.name%></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div> <!--modal-header-->
+                                  <div class="modal-body">
+<!--                                    <button type="button" class="btn btn-info" data-dismiss="modal">공유</button> -->
+                                    <button type="button" class="btn btn-info" onclick="location.href='http://<%=item.ip%>:3304/download/<%=item.stored_name%>?name=<%=item.name%>'">다운로드</button>
+                                    <button type="button" class="btn btn-info" data-dismiss="modal" onclick="remove_func(<%=item.file_id%>);">삭제</button>
+                                  </div>  <!-- modal-body  -->
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  </div> <!-- modal-footer -->
+                                </div> <!-- modal-content -->
+                              </div>
+                            
+                            </div>
+			    <% }); %>
+
+				<tr>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				</tr>
+			</table>
+		</div>
+	     
+	    </article>
+
+	    <nav class="col-xs-3 col-md-3">
+                <a id="uploadBtn" type="button" class="btn btn-info"> 파일 업로드 </a>
+                <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">Upload</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div> <!--modal-header-->
+                      <div class="modal-body">
+		        <input type="file" id="files" name="files[]" multiple />
+                        <div id="uploadProgress" class="progress" style="display:none;">
+                          <div id="uploadProgress-bar" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            0%
+                          </div>
+                        </div>
+                      </div>  <!-- modal-body  -->
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="location.href='/'">Close</button>
+                      </div> <!-- modal-footer -->
+                    </div> <!-- modal-content -->
+                  </div>
+                
+                </div>
+                
+	    </nav>
+	   <!-- </nav> -->
+
+	</p>
+</div>
+            <script src="jquery/jquery-3.2.1.js"></script>
+            <script src="bootstrap/js/bootstrap.min.js"></script>
+    </div>
+
+
+    <script type="text/javascript">
+$(document).ready(function(){
+//	$('.dropdown-toggle').dropdown();
+	$('.dropdown-toggle').click(function(){$('.dropdown-menu').toggle();});
+//	$('#uploadModal').click(function(){$('.modal').toggle();});
+	$('#uploadBtn').click(function(){
+          $('#uploadModal').modal();
+          $('#files').attr('style', 'display:block');
+          $('#uploadProgress-bar').attr('style', 'width:0%');
+          $('#uploadProgress-bar').html('0%');
+          $('#uploadProgress').attr('style', 'display:none');
+        });
+	$('#serverModalBtn').click(function(){
+          $('#serverModal').modal();
+        });
+
+<% fileList.forEach(function(item, index){ %>
+	$('#testModal<%=index%>').click(function(){
+          $('#fileModal<%=index%>').modal();
+        });
+<% }); %>
+});
+var upload_ip = null;
+
+var upload_file_fd = null;
+
+    function remove_func(id){
+      var msg = {
+        stat: "remove file",
+        file_id: id
+      };
+      ws.send(JSON.stringify(msg));
+      location.href='/';
+    }
+    
+    function download_func(ip, stored_name, name){
+      location.href='http://'+ip+':3304/download/'+stored_name+'?name='+name;
+    }
+var ws_upload = null;
+if ('WebSocket' in window) {
+
+  var ws = new WebSocket('ws://192.168.0.6:8000', 'example-echo');
+
+  ws.binaryType="arraybuffer";
+
+  ws.onopen = function () {
+
+    $('#status').text('connected');
+
+  };
+
+  ws.onmessage = function (evt) {
+
+    var msga = null;
+
+    try{
+
+      msga = JSON.parse(evt.data);
+
+      if(msga.stat == 'down_ok'){
+        window.location = msga.ip;
+      }
+
+      else if(msga.stat == 'upload_start'){
+        upload_ip = msga.upload_ip;
+
+//////////////////////////
+        ws_upload = new WebSocket('ws://'+upload_ip, 'example-echo');
+        ws_upload.binaryType="arraybuffer";
+        ws_upload.onopen = function () {
+          $('#uploadProgress').attr('style', 'display:block');
+          $('#files').attr('style', 'display:none');
+          sendFile(upload_file_fd, msga.stored_name, msga.name);
+        };
+
+        ws_upload.onmessage = function (evt) {
+
+          try{
+            var msg = JSON.parse(evt.data);  
+          }catch(e){
+          }
+          if(msg.stat == 'upload complete'){
+            alert('complete');
+            $('#uploadProgress-bar').attr('style', 'width:100%');
+            $('#uploadProgress-bar').html('100%');
+          }
+        };
+
+        ws_upload.onclose = function () {
+
+        };
+//////////////////////////////
+      } else if(msga.stat == 'reload'){
+            location.reload();
+      } else if(msga.stat == 'error'){
+        alert(msga.message);
+      }
+    } catch (e){
+    }
+
+  };
+
+  ws.onclose = function () {
+
+    $('#status').text('connection is closed');
+
+  };
+
+}
+
+else
+
+  $('#status').text('WebSocket not supported.');
+
+  function readBlob(file, opt_startByte, opt_stopByte, file_name, origin) {
+
+    var start = parseInt(opt_startByte) || 0;
+
+    var stop = parseInt(opt_stopByte) || file.size - 1;
+
+    var reader = new FileReader();
+
+    // If we use onloadend, we need to check the readyState.
+
+    reader.onloadend = function(evt) {
+
+      if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+
+          var rawData = new ArrayBuffer();
+          if(start == 0){
+            var msg = {
+              type: "file_data",
+              stored_name: file_name,
+              name: origin,
+              size: file.size,
+              stat: 'start',
+              username: '<%= username %>'
+            };
+            ws_upload.send(JSON.stringify(msg));
+          }
+          
+          $('#uploadProgress-bar').attr('style', 'width:'+(Math.round((start/file.size)*100))+'%');
+          $('#uploadProgress-bar').html(''+(Math.round((start/file.size)*100))+'%');
+          rawData = evt.target.result;
+          ws_upload.send(rawData);
+
+          if(stop >= file.size - 1){
+            upload_file_fd = null;
+
+            var msg = {
+              type: "file_data",
+	      stored_name: file_name,
+	      name: origin,
+	      size: file.size,
+              stat: 'end',
+              username: '<%= username %>'
+            };
+
+            ws_upload.send(JSON.stringify(msg));
+          }
+
+      }
+
+    };
+
+    var blob = file.slice(start, stop + 1);
+
+
+    reader.readAsArrayBuffer(blob);
+
+  }
+
+  function sendFile(file, file_name, origin){
+    for(var i=0;i*50000 <= file.size-1;i++){
+      readBlob(file, i*50000, (i+1)*50000-1, file_name, origin);
+    }
+  }
+
+ 
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    upload_file_fd = files[0];
+
+var msg = {
+    type: "file_data",
+    name: escape(files[0].name),
+    size: files[0].size,
+    stat: 'upload',
+  };
+ws.send(JSON.stringify(msg));
+
+  }
+
+  
+
+  function handleFileSelectDrag(evt) {
+
+    evt.stopPropagation();
+
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+
+
+    upload_file_fd = files[0];
+
+var msg = {
+
+    type: "file_data",
+
+    name: escape(files[0].name),
+
+    size: files[0].size,
+
+    stat: 'upload',
+
+  };
+
+ws.send(JSON.stringify(msg));
+
+  }
+
+  function handleDragOver(evt) {
+
+    evt.stopPropagation();
+
+    evt.preventDefault();
+
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+
+  }
+
+  // Setup the dnd listeners.
+
+  var dropZone = document.getElementById('drop_zone');
+
+  dropZone.addEventListener('dragover', handleDragOver, false);
+
+  dropZone.addEventListener('drop', handleFileSelectDrag, false);
+
+ 
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+</script>
+</body>
+</html>
